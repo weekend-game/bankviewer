@@ -1,6 +1,7 @@
 package game.weekend.bankviewer;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -38,8 +39,22 @@ public class Filer {
 				// Отображаю имя открытого файла в заголовке приложения
 				this.viewer.getFrame().setTitle(BankViewer.APP_NAME + " - " + file.getPath());
 
-				// Пока ничего не отображаю.
-				// ...
+				try {
+					// Исходный файл будет переработан и записан вот в такой html-файл
+					String dst = "temp_bankviewer_" + no++;
+					File tempFile = File.createTempFile(dst, ".html");
+
+					Convertor.convert(file.getPath(), tempFile);
+
+					// Отображаю html-файл
+					this.viewer.showFile(tempFile);
+
+					// Удаляю, теперь уже не нужный html-файл
+					tempFile.deleteOnExit();
+
+				} catch (IOException e) {
+					this.viewer.err("Не удалось создать временный файл для отображения таблицы.\n" + e);
+				}
 
 			} else {
 				// Выдаю сообщение об этом неприятном событии
@@ -102,4 +117,6 @@ public class Filer {
 
 	private File file;
 	private BankViewer viewer;
+
+	private static int no = 1;
 }

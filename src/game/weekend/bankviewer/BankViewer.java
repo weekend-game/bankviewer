@@ -24,7 +24,7 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Версия */
-	public static final String APP_VERSION = "Версия 00.00 от 19.07.2025";
+	public static final String APP_VERSION = "Версия 01.00 от 20.07.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
