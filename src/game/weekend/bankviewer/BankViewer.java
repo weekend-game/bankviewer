@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 /**
  * Приложение BankViewer.
@@ -24,7 +26,7 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Версия */
-	public static final String APP_VERSION = "Версия 01.00 от 20.07.2025";
+	public static final String APP_VERSION = "Версия 01.10 от 26.07.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -35,6 +37,9 @@ public class BankViewer {
 	/** Путь к пиктограммам */
 	public static final String IMAGE_PATH = "/game/weekend/bankviewer/images/";
 
+	/** Статусная строка */
+	public static final StatusBar status = new StatusBar();
+
 	/**
 	 * Создать приложение. Создаётся окно приложения, объекты необходимые для работы
 	 * и элементы управления окна.
@@ -44,24 +49,30 @@ public class BankViewer {
 		Proper.read(APP_NAME);
 
 		// Frame приложения
-		this.frame = new JFrame(APP_NAME);
+		frame = new JFrame(APP_NAME);
 		makeJFrame();
 
 		// JEditorPane для отображения банковской выписки
-		this.pane = new JEditorPane();
+		pane = new JEditorPane();
 		makeJEditorPane();
 
 		// Работа с файлами
-		Filer filer = new Filer(this);
+		filer = new Filer(this);
+
+		// Поиск в открытом файле
+		Finder finder = new Finder(pane, frame);
 
 		// Работа с меню и инструментальной линейкой
-		this.act = new Act(this, filer);
+		act = new Act(this, filer, finder);
 
 		// Меню
-		this.frame.setJMenuBar(act.getMenuBar());
+		frame.setJMenuBar(act.getMenuBar());
 
 		// Инструментальная линейка
-		this.frame.getContentPane().add(act.getToolBar(), BorderLayout.NORTH);
+		frame.getContentPane().add(act.getToolBar(), BorderLayout.NORTH);
+
+		// Статусная строка
+		frame.getContentPane().add(BankViewer.status.getPanel(), BorderLayout.SOUTH);
 	}
 
 	/**
@@ -101,6 +112,14 @@ public class BankViewer {
 
 		// и размещаю JScrollPane в центр ContentPane Frame-а
 		frame.getContentPane().add(spane, BorderLayout.CENTER);
+
+		// Перехватываю выделение/сброс выделения текста отображенной выписки
+		pane.addCaretListener(new CaretListener() {
+			public void caretUpdate(CaretEvent ce) {
+				// Если имеется выделенный текст, то разрешить Copy иначе заблокировать.
+				act.setEnableCopy(pane.getSelectionStart() != pane.getSelectionEnd());
+			}
+		});
 	}
 
 	/**
@@ -152,6 +171,15 @@ public class BankViewer {
 	}
 
 	/**
+	 * Получить JEditorPane.
+	 * 
+	 * @return JEditorPane.
+	 */
+	public JEditorPane getPane() {
+		return pane;
+	}
+
+	/**
 	 * Выдать сообщение об ошибке.
 	 * 
 	 * @param message текст сообщения.
@@ -182,4 +210,5 @@ public class BankViewer {
 	private JFrame frame;
 	private JEditorPane pane;
 	private Act act;
+	private Filer filer;
 }

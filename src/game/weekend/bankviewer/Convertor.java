@@ -17,6 +17,13 @@ public class Convertor {
 	public static final String LS = System.lineSeparator();
 
 	/**
+	 * Создание объектов этого класса запрещено. Класс содержит только статические
+	 * методы.
+	 */
+	private Convertor() {
+	}
+
+	/**
 	 * Преобразовать из формата банковской выписки в HTML.
 	 * 
 	 * @param src имя исходного файла выписки.
@@ -25,7 +32,12 @@ public class Convertor {
 	public static void convert(String src, File dstFile) {
 		ArrayList<Substance> al = loadSource(src);
 		ArrayList<String> title = createTitle(al);
+
+		lineCounter = 0;
 		createHTML(dstFile, al, title);
+
+		BankViewer.status.showText1("Строк: " + lineCounter);
+		BankViewer.status.showText2("Колонок: " + (title.size() - 1)); // Колонка "No" (номер строки) не считается
 	}
 
 	/**
@@ -196,7 +208,8 @@ public class Convertor {
 						write("<tr>");
 						for (String t : title) {
 							// Некоторые эмпирические правила для определения ширины колонок. Так удобнее
-							// становится.
+							// становится. Впрочем, можно было бы и определить реально необходимую ширину
+							// колонки...
 							if (t.equalsIgnoreCase("Плательщик1") || t.equalsIgnoreCase("Получатель")
 									|| t.equalsIgnoreCase("Получатель1") || t.equalsIgnoreCase("НазначениеПлатежа")
 									|| t.equalsIgnoreCase("НазначениеПлатежа1")) {
@@ -224,6 +237,9 @@ public class Convertor {
 						write("<td>" + spacing(d[i]) + "</td>");
 					}
 					write("</tr>");
+
+					++lineCounter;
+
 				} else {
 					if (inTable) {
 						write("</table>");
@@ -338,5 +354,5 @@ public class Convertor {
 	}
 
 	private static PrintWriter out;
-
+	private static int lineCounter = 0;
 }
