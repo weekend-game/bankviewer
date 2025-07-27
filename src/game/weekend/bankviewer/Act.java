@@ -4,17 +4,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 
 /**
  * Линейка меню и инструментальная линейка. А так же все Actions которые есть в
@@ -28,7 +33,11 @@ public class Act {
 	 * @param viewer приложение.
 	 * @param filer  работв с фвйлом.
 	 */
-	public Act(BankViewer viewer, Filer filer, Finder finder) {
+	public Act(BankViewer viewer, Filer filer, Finder finder, LaF laf, LastFiles lastFiles) {
+		this.filer = filer;
+		this.laf = laf;
+		this.lastFiles = lastFiles;
+
 		// Actions могут использоваться как в меню, так и в инструментальной линейке.
 		// Так что лучше их создать и запомнить один раз в конструкторе.
 		open = getActOpen(filer);
@@ -51,13 +60,11 @@ public class Act {
 	 * 
 	 * @return меню приложения.
 	 */
+	@SuppressWarnings("serial")
 	public JMenuBar getMenuBar() {
-		JMenuBar menu = new JMenuBar();
+		menu = new JMenuBar();
 
-		JMenu fileMenu = new JMenu("Файл");
-		fileMenu.add(open);
-		fileMenu.add(new JSeparator());
-		fileMenu.add(exit);
+		refreshMenuFile();
 
 		JMenu viewMenu = new JMenu("Просмотр");
 		viewMenu.add(cut);
@@ -71,11 +78,30 @@ public class Act {
 		viewMenu.add(findForward);
 		viewMenu.add(findBack);
 
+		JMenu lafMenu = new JMenu("Вид"); // Меню LaF представляет собой радиокнопки
+		ButtonGroup btgLaf = new ButtonGroup();
+		for (UIManager.LookAndFeelInfo lafi : UIManager.getInstalledLookAndFeels()) {
+			JMenuItem mi = new JRadioButtonMenuItem();
+			mi.setAction(new AbstractAction() {
+				{
+					putValue(Action.NAME, lafi.getName());
+				}
+
+				public void actionPerformed(ActionEvent ae) {
+					laf.setLookAndFeel(lafi.getClassName());
+				}
+			});
+			mi.setSelected(laf.getLookAndFeel().equals(lafi.getClassName()));
+			btgLaf.add(mi);
+			lafMenu.add(mi);
+		}
+
 		JMenu helpMenu = new JMenu("Помощь");
 		helpMenu.add(about);
 
 		menu.add(fileMenu);
 		menu.add(viewMenu);
+		menu.add(lafMenu);
 		menu.add(helpMenu);
 
 		return menu;
@@ -114,6 +140,43 @@ public class Act {
 		toolBar.add(findBack);
 
 		return toolBar;
+	}
+
+	/**
+	 * Создать/пересоздать меню "Файл".
+	 * <p>
+	 * После открытия файла Filer добавляет его в список имен последних открытых
+	 * файлов (LastFiles) и обновляет меню File меню. Поэтому нужен отдельный метод
+	 * для создания/обновления этого меню.
+	 */
+	public void refreshMenuFile() {
+		// Если меню ещё не создано, то создаю его
+		if (fileMenu == null) {
+			fileMenu = new JMenu("Файл");
+			menu.add(fileMenu);
+		} else
+			// А иначе, очищаю от всех пунктов
+			fileMenu.removeAll();
+
+		// Добавляю пункт меню "Открыть"
+		fileMenu.add(open);
+
+		// Получаю список последних открытых файлов
+		List<String> list = this.lastFiles.getList();
+
+		// И если таковые были
+		if (list.size() > 0) {
+			// добавляю в меню сепаратор
+			fileMenu.add(new JSeparator());
+
+			// и список открытых файлов
+			int i = 1;
+			for (String s : list)
+				fileMenu.add(getActOpenFile(filer, i++, s));
+		}
+
+		fileMenu.add(new JSeparator());
+		fileMenu.add(exit);
 	}
 
 	/**
@@ -158,6 +221,29 @@ public class Act {
 				if (newFile != null) {
 					filer.open(newFile);
 				}
+			}
+		};
+	}
+
+	/**
+	 * Action для имен последних открытых файлов в меню приложения.
+	 * 
+	 * @param no   номер файла 1..N.
+	 * @param name путь и имя файла.
+	 * @return Action для открытия указанного файла.
+	 */
+	@SuppressWarnings("serial")
+	public AbstractAction getActOpenFile(Filer filer, int no, String name) {
+		return new AbstractAction() {
+			{
+				putValue(Action.NAME, "" + no + " " + name);
+				putValue(Action.SHORT_DESCRIPTION, name);
+				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
+				putValue(Action.MNEMONIC_KEY, KeyEvent.VK_0 + no);
+			}
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				filer.open(new File(name));
 			}
 		};
 	}
@@ -380,6 +466,9 @@ public class Act {
 		};
 	}
 
+	private JMenuBar menu;
+	private JMenu fileMenu;
+
 	private AbstractAction open;
 	private AbstractAction exit;
 
@@ -394,4 +483,8 @@ public class Act {
 	private AbstractAction findBack;
 
 	private AbstractAction about;
+
+	private Filer filer;
+	private LastFiles lastFiles;
+	private LaF laf;
 }

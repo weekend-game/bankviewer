@@ -22,8 +22,9 @@ public class Filer {
 	 * 
 	 * @param viewer основной объект приложения.
 	 */
-	public Filer(BankViewer viewer) {
+	public Filer(BankViewer viewer, LastFiles lastFiles) {
 		this.viewer = viewer;
+		this.lastFiles = lastFiles;
 	}
 
 	/**
@@ -37,7 +38,10 @@ public class Filer {
 				this.file = file;
 
 				// Отображаю имя открытого файла в заголовке приложения
-				this.viewer.getFrame().setTitle(BankViewer.APP_NAME + " - " + file.getPath());
+				viewer.getFrame().setTitle(BankViewer.APP_NAME + " - " + file.getPath());
+
+				// Запоминаю его в списке последних открытых файлов
+				lastFiles.put(file.getPath());
 
 				try {
 					// Исходный файл будет переработан и записан вот в такой html-файл
@@ -47,19 +51,24 @@ public class Filer {
 					Convertor.convert(file.getPath(), tempFile);
 
 					// Отображаю html-файл
-					this.viewer.showFile(tempFile);
+					viewer.showFile(tempFile);
 
 					// Удаляю, теперь уже не нужный html-файл
 					tempFile.deleteOnExit();
 
 				} catch (IOException e) {
-					this.viewer.err("Не удалось создать временный файл для отображения таблицы.\n" + e);
+					viewer.err("Не удалось создать временный файл для отображения таблицы.\n" + e);
 				}
 
 			} else {
+				// Если файл не открылся, то удаляю его из списка последних открытых файлов
+				lastFiles.remove(file.getPath());
+
 				// Выдаю сообщение об этом неприятном событии
-				this.viewer.err("Файл " + file.getPath() + " не найден.");
+				viewer.err("Файл " + file.getPath() + " не найден.");
 			}
+
+			viewer.refreshMenuFile();
 		}
 	}
 
@@ -117,6 +126,7 @@ public class Filer {
 
 	private File file;
 	private BankViewer viewer;
+	private LastFiles lastFiles;
 
 	private static int no = 1;
 }

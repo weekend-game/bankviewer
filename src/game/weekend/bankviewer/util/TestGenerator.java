@@ -11,7 +11,8 @@ public class TestGenerator {
 		System.out.println("Старт...");
 
 		var tg = new TestGenerator();
-		tg.makeTest("Выписка1.txt", 128, "20.07.2025");
+		tg.makeTest("Выписка2.txt", 32, "26.07.2025");
+		tg.makeTest("Выписка3.txt", 64, "27.07.2025");
 
 		System.out.println("Готово!");
 	}

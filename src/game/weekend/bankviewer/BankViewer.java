@@ -2,11 +2,19 @@ package game.weekend.bankviewer;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -26,7 +34,7 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Версия */
-	public static final String APP_VERSION = "Версия 01.10 от 26.07.2025";
+	public static final String APP_VERSION = "Версия 01.20 от 27.07.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -56,14 +64,20 @@ public class BankViewer {
 		pane = new JEditorPane();
 		makeJEditorPane();
 
+		// Хранитель имен последних открытых файлов (пяти, например)
+		lastFiles = new LastFiles(5);
+
 		// Работа с файлами
-		filer = new Filer(this);
+		filer = new Filer(this, lastFiles);
 
 		// Поиск в открытом файле
 		Finder finder = new Finder(pane, frame);
 
+		// Look and Feels
+		LaF laf = new LaF(this.frame);
+
 		// Работа с меню и инструментальной линейкой
-		act = new Act(this, filer, finder);
+		act = new Act(this, filer, finder, laf, lastFiles);
 
 		// Меню
 		frame.setJMenuBar(act.getMenuBar());
@@ -120,6 +134,32 @@ public class BankViewer {
 				act.setEnableCopy(pane.getSelectionStart() != pane.getSelectionEnd());
 			}
 		});
+
+		// Перехватываю событие Drag and Drop. На самом деле Drop.
+		new DropTarget(pane, new DropTargetListener() {
+
+			public void dragEnter(DropTargetDragEvent e) {
+			}
+
+			public void dragExit(DropTargetEvent e) {
+			}
+
+			public void dragOver(DropTargetDragEvent e) {
+			}
+
+			public void dropActionChanged(DropTargetDragEvent e) {
+			}
+
+			public void drop(DropTargetDropEvent e) {
+				try {
+					e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+					List<?> list = (List<?>) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+					File file = (File) list.get(0);
+					filer.open(file);
+				} catch (Exception ignored) {
+				}
+			}
+		});
 	}
 
 	/**
@@ -144,6 +184,7 @@ public class BankViewer {
 	public void close() {
 		Proper.saveBounds(frame);
 		frame.dispose();
+		lastFiles.save();
 		Proper.save();
 	}
 
@@ -159,6 +200,13 @@ public class BankViewer {
 		} catch (IOException ignored) {
 		}
 		pane.requestFocus();
+	}
+
+	/**
+	 * Переотобразить меню "Файл".
+	 */
+	public void refreshMenuFile() {
+		act.refreshMenuFile();
 	}
 
 	/**
@@ -211,4 +259,5 @@ public class BankViewer {
 	private JEditorPane pane;
 	private Act act;
 	private Filer filer;
+	private LastFiles lastFiles;
 }
