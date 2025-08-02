@@ -28,6 +28,13 @@ public class Finder {
 	}
 
 	/**
+	 * Сбросить позицию начала поиска в исходное состояние
+	 */
+	public void resetPosition() {
+		position = -1;
+	}
+
+	/**
 	 * Отображение диалогового окна для указания шаблона поиска и затем поиск
 	 * указанного шаблона.
 	 */
@@ -36,7 +43,7 @@ public class Finder {
 		if (finderFrame == null) {
 			finderFrame = new FinderFrame(appFrame) {
 				{
-					position = -1;
+					resetPosition();
 					setPattern(pattern);
 					setCase(caseSensitive);
 					setFindDown(true);
@@ -57,6 +64,8 @@ public class Finder {
 					} else {
 						findBack();
 					}
+
+					whatFocus();
 				}
 
 				@Override
@@ -75,8 +84,11 @@ public class Finder {
 	public void findForward() {
 		try {
 			String content = getContent();
-			int i = content.indexOf(getPattern(), position + 1);
-			showResult(i);
+			String pattern = getPattern();
+			if (pattern.trim().length() > 0) {
+				int i = content.indexOf(pattern, position + 1);
+				showResult(i);
+			}
 		} catch (BadLocationException e) {
 			System.out.println(e);
 		}
@@ -88,8 +100,11 @@ public class Finder {
 	public void findBack() {
 		try {
 			String content = getContent();
-			int i = content.lastIndexOf(getPattern(), position - 1);
-			showResult(i);
+			String pattern = getPattern();
+			if (pattern.trim().length() > 0) {
+				int i = content.lastIndexOf(pattern, position - 1);
+				showResult(i);
+			}
 		} catch (BadLocationException e) {
 			System.out.println(e);
 		}

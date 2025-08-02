@@ -1,6 +1,7 @@
 package game.weekend.bankviewer;
 
 import java.awt.Component;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -13,12 +14,8 @@ public class LaF {
 
 	/**
 	 * Создать объект для работы с LookAndFeel-ами.
-	 * 
-	 * @param component компонент UI для обновления внешнего вида.
 	 */
-	public LaF(Component component) {
-		this.component = component;
-		setLookAndFeel(getLookAndFeel());
+	public LaF() {
 	}
 
 	/**
@@ -29,7 +26,11 @@ public class LaF {
 	public void setLookAndFeel(String className) {
 		try {
 			UIManager.setLookAndFeel(className);
-			SwingUtilities.updateComponentTreeUI(component);
+			// increaseFont();
+
+			for (Component c : components)
+				SwingUtilities.updateComponentTreeUI(c);
+
 			Proper.setProperty("LaF", className);
 		} catch (Exception e) {
 			setLookAndFeel(DEFAULT_LAF);
@@ -45,5 +46,34 @@ public class LaF {
 		return Proper.getProperty("LaF", DEFAULT_LAF);
 	}
 
-	private Component component;
+	/**
+	 * Указать перечень компонентов для обнавления L&F.
+	 * 
+	 * @param components перечень компонентов
+	 */
+	public void setupComponents(Component... components) {
+		this.components = components;
+	}
+
+	/**
+	 * Увеличить шрифт. Просто попробовал.
+	 */
+//	private void increaseFont() {
+//		float scale = (float) (Toolkit.getDefaultToolkit().getScreenResolution() / 96.0);
+//
+//		scale = (float) (scale > 1.5F ? 1.1 : scale);
+//
+//		Enumeration<?> keys = UIManager.getDefaults().keys();
+//		while (keys.hasMoreElements()) {
+//			Object key = keys.nextElement();
+//			Object value = UIManager.get(key);
+//			if (value instanceof FontUIResource) {
+//				Font font = (Font) value;
+//				font = font.deriveFont((float) font.getSize() * scale);
+//				UIManager.put(key, font);
+//			}
+//		}
+//	}
+
+	private Component[] components;
 }

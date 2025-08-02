@@ -9,6 +9,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -19,7 +21,10 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.CaretEvent;
@@ -34,7 +39,7 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Версия */
-	public static final String APP_VERSION = "Версия 01.20 от 27.07.2025";
+	public static final String APP_VERSION = "Версия 01.30 от 02.08.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -45,7 +50,7 @@ public class BankViewer {
 	/** Путь к пиктограммам */
 	public static final String IMAGE_PATH = "/game/weekend/bankviewer/images/";
 
-	/** Статусная строка */
+	/** Строка состояния */
 	public static final StatusBar status = new StatusBar();
 
 	/**
@@ -67,14 +72,14 @@ public class BankViewer {
 		// Хранитель имен последних открытых файлов (пяти, например)
 		lastFiles = new LastFiles(5);
 
-		// Работа с файлами
-		filer = new Filer(this, lastFiles);
-
 		// Поиск в открытом файле
 		Finder finder = new Finder(pane, frame);
 
+		// Работа с файлами
+		filer = new Filer(this, lastFiles, finder);
+
 		// Look and Feels
-		LaF laf = new LaF(this.frame);
+		LaF laf = new LaF();
 
 		// Работа с меню и инструментальной линейкой
 		act = new Act(this, filer, finder, laf, lastFiles);
@@ -82,11 +87,38 @@ public class BankViewer {
 		// Меню
 		frame.setJMenuBar(act.getMenuBar());
 
-		// Инструментальная линейка
-		frame.getContentPane().add(act.getToolBar(), BorderLayout.NORTH);
+		// Меню по правой клавише мыши
+		JPopupMenu popupMenu = act.getPopupMenu();
+		pane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent me) {
+				if (me.isPopupTrigger()) {
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			}
 
-		// Статусная строка
-		frame.getContentPane().add(BankViewer.status.getPanel(), BorderLayout.SOUTH);
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				if (me.isPopupTrigger()) {
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			}
+		});
+
+		// Инструментальная линейка
+		toolbarOn = Proper.getProperty("ToolbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
+		toolbar = act.getToolBar();
+		if (toolbarOn)
+			frame.getContentPane().add(toolbar, BorderLayout.NORTH);
+
+		// Строка состояния
+		statusbarOn = Proper.getProperty("StatusbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
+		statusbar = BankViewer.status.getPanel();
+		if (statusbarOn)
+			frame.getContentPane().add(statusbar, BorderLayout.SOUTH);
+
+		laf.setupComponents(frame, popupMenu, toolbar, statusbar);
+		laf.setLookAndFeel(laf.getLookAndFeel());
 	}
 
 	/**
@@ -131,7 +163,7 @@ public class BankViewer {
 		pane.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent ce) {
 				// Если имеется выделенный текст, то разрешить Copy иначе заблокировать.
-				act.setEnableCopy(pane.getSelectionStart() != pane.getSelectionEnd());
+				act.setEnabledCopy(pane.getSelectionStart() != pane.getSelectionEnd());
 			}
 		});
 
@@ -174,6 +206,38 @@ public class BankViewer {
 				bv.getFrame().setVisible(true);
 			}
 		});
+	}
+
+	/**
+	 * Отображать инструментальную линейку.
+	 * 
+	 * @param toolbarON true - отображать, false - не отображать
+	 */
+	public void setTooolbarON(boolean toolbarON) {
+		this.toolbarOn = toolbarON;
+		if (toolbarOn)
+			frame.getContentPane().add(toolbar, BorderLayout.NORTH);
+		else
+			frame.getContentPane().remove(toolbar);
+
+		frame.setVisible(true);
+		Proper.setProperty("ToolbarON", toolbarOn ? "TRUE" : "FALSE");
+	}
+
+	/**
+	 * Отображать строку состояния.
+	 * 
+	 * @param statusbarON true - отображать, false - не отображать
+	 */
+	public void setStatusbarON(boolean statusbarOn) {
+		this.statusbarOn = statusbarOn;
+		if (statusbarOn)
+			frame.getContentPane().add(statusbar, BorderLayout.SOUTH);
+		else
+			frame.getContentPane().remove(statusbar);
+
+		frame.setVisible(true);
+		Proper.setProperty("StatusbarON", statusbarOn ? "TRUE" : "FALSE");
 	}
 
 	/**
@@ -257,7 +321,12 @@ public class BankViewer {
 
 	private JFrame frame;
 	private JEditorPane pane;
+	private JToolBar toolbar;
+	private JPanel statusbar;
 	private Act act;
 	private Filer filer;
 	private LastFiles lastFiles;
+
+	private boolean toolbarOn;
+	private boolean statusbarOn;
 }

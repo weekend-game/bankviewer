@@ -22,15 +22,16 @@ public class Filer {
 	 * 
 	 * @param viewer основной объект приложения.
 	 */
-	public Filer(BankViewer viewer, LastFiles lastFiles) {
+	public Filer(BankViewer viewer, LastFiles lastFiles, Finder finder) {
 		this.viewer = viewer;
 		this.lastFiles = lastFiles;
+		this.finder = finder;
 	}
 
 	/**
 	 * Открыть указнный файл и отобразить его.
 	 * 
-	 * @param file полный путь к открываемому файлу
+	 * @param file открываемый файл
 	 */
 	public void open(File file) {
 		if (file != null) {
@@ -55,6 +56,9 @@ public class Filer {
 
 					// Удаляю, теперь уже не нужный html-файл
 					tempFile.deleteOnExit();
+
+					// Если открыто окно поиска, то поиск вести с начала нового файла
+					finder.resetPosition();
 
 				} catch (IOException e) {
 					viewer.err("Не удалось создать временный файл для отображения таблицы.\n" + e);
@@ -127,6 +131,7 @@ public class Filer {
 	private File file;
 	private BankViewer viewer;
 	private LastFiles lastFiles;
+	private Finder finder;
 
 	private static int no = 1;
 }

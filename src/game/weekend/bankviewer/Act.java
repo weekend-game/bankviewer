@@ -11,10 +11,12 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -45,12 +47,14 @@ public class Act {
 
 		cut = getActCut();
 		copy = getActCopy(viewer.getPane());
-		past = getActPaste();
-		delete = getActDelete();
+		paste = getActPaste();
 		selectAll = getActSelectAll(viewer.getPane());
 		find = getActFind(finder);
 		findForward = getActFindForward(finder);
 		findBack = getActFindBack(finder);
+
+		toolbarOn = getActToolbarOn(viewer);
+		statusbarOn = getActStatusbarOn(viewer);
 
 		about = getActAbout(viewer);
 	}
@@ -66,19 +70,18 @@ public class Act {
 
 		refreshMenuFile();
 
-		JMenu viewMenu = new JMenu("Просмотр");
-		viewMenu.add(cut);
-		viewMenu.add(copy);
-		viewMenu.add(past);
-		viewMenu.add(delete);
-		viewMenu.add(new JSeparator());
-		viewMenu.add(selectAll);
-		viewMenu.add(new JSeparator());
-		viewMenu.add(find);
-		viewMenu.add(findForward);
-		viewMenu.add(findBack);
+		JMenu editMenu = new JMenu("Правка");
+		editMenu.add(cut);
+		editMenu.add(copy);
+		editMenu.add(paste);
+		editMenu.add(new JSeparator());
+		editMenu.add(selectAll);
+		editMenu.add(new JSeparator());
+		editMenu.add(find);
+		editMenu.add(findForward);
+		editMenu.add(findBack);
 
-		JMenu lafMenu = new JMenu("Вид"); // Меню LaF представляет собой радиокнопки
+		JMenu viewMenu = new JMenu("Вид");
 		ButtonGroup btgLaf = new ButtonGroup();
 		for (UIManager.LookAndFeelInfo lafi : UIManager.getInstalledLookAndFeels()) {
 			JMenuItem mi = new JRadioButtonMenuItem();
@@ -93,15 +96,27 @@ public class Act {
 			});
 			mi.setSelected(laf.getLookAndFeel().equals(lafi.getClassName()));
 			btgLaf.add(mi);
-			lafMenu.add(mi);
+			viewMenu.add(mi);
 		}
 
-		JMenu helpMenu = new JMenu("Помощь");
+		viewMenu.add(new JSeparator());
+
+		JCheckBoxMenuItem i = null;
+
+		i = new JCheckBoxMenuItem(toolbarOn);
+		i.setSelected(Proper.getProperty("ToolbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false);
+		viewMenu.add(i);
+
+		i = new JCheckBoxMenuItem(statusbarOn);
+		i.setSelected(Proper.getProperty("StatusbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false);
+		viewMenu.add(i);
+
+		JMenu helpMenu = new JMenu("Справка");
 		helpMenu.add(about);
 
 		menu.add(fileMenu);
+		menu.add(editMenu);
 		menu.add(viewMenu);
-		menu.add(lafMenu);
 		menu.add(helpMenu);
 
 		return menu;
@@ -133,13 +148,34 @@ public class Act {
 		toolBar.addSeparator();
 		toolBar.add(cut);
 		toolBar.add(copy);
-		toolBar.add(past);
+		toolBar.add(paste);
 		toolBar.addSeparator();
 		toolBar.add(find);
 		toolBar.add(findForward);
 		toolBar.add(findBack);
 
 		return toolBar;
+	}
+
+	public JPopupMenu getPopupMenu() {
+		if (popupMenu == null) {
+			popupMenu = new JPopupMenu();
+
+			popupMenu.add(open);
+			popupMenu.add(new JSeparator());
+			popupMenu.add(cut);
+			popupMenu.add(copy);
+			popupMenu.add(paste);
+			popupMenu.add(new JSeparator());
+			popupMenu.add(selectAll);
+			popupMenu.add(new JSeparator());
+			popupMenu.add(find);
+			popupMenu.add(findForward);
+			popupMenu.add(findBack);
+		}
+
+		return popupMenu;
+
 	}
 
 	/**
@@ -191,7 +227,7 @@ public class Act {
 	 * 
 	 * @param enabled true - активировать, flase деактивировать пункт меню Copy.
 	 */
-	public void setEnableCopy(boolean enabled) {
+	public void setEnabledCopy(boolean enabled) {
 		copy.setEnabled(enabled);
 	}
 
@@ -207,7 +243,7 @@ public class Act {
 	 * @return Action "Открыть..."
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActOpen(Filer filer) {
+	private AbstractAction getActOpen(Filer filer) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Открыть...");
@@ -233,7 +269,7 @@ public class Act {
 	 * @return Action для открытия указанного файла.
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActOpenFile(Filer filer, int no, String name) {
+	private AbstractAction getActOpenFile(Filer filer, int no, String name) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "" + no + " " + name);
@@ -256,7 +292,7 @@ public class Act {
 	 * @return Action "Выход из программы"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActExit(BankViewer viewer) {
+	private AbstractAction getActExit(BankViewer viewer) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Выход");
@@ -277,13 +313,14 @@ public class Act {
 	 * @return Action "Вырезать"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActCut() {
+	private AbstractAction getActCut() {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Вырезать");
 				putValue(Action.SHORT_DESCRIPTION, "Вырезать фрагмент");
 				putValue(Action.SMALL_ICON, getImageIcon("cut.gif"));
-				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, 2));
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
 				setEnabled(false);
 			}
 
@@ -298,13 +335,14 @@ public class Act {
 	 * @return Action "Копировать"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActCopy(JEditorPane pane) {
+	private AbstractAction getActCopy(JEditorPane pane) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Копировать");
 				putValue(Action.SHORT_DESCRIPTION, "Копировать фрагмент");
 				putValue(Action.SMALL_ICON, getImageIcon("copy.gif"));
-				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, 2));
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
 				setEnabled(false);
 			}
 
@@ -320,34 +358,14 @@ public class Act {
 	 * @return Action "Вставить"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActPaste() {
+	private AbstractAction getActPaste() {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Вставить");
 				putValue(Action.SHORT_DESCRIPTION, "Вставить фрагмент");
 				putValue(Action.SMALL_ICON, getImageIcon("paste.gif"));
-				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, 2));
-				setEnabled(false);
-			}
-
-			public void actionPerformed(ActionEvent actionEvent) {
-			}
-		};
-	}
-
-	/**
-	 * "Удалить"
-	 * 
-	 * @return Action "Удалить"
-	 */
-	@SuppressWarnings("serial")
-	public AbstractAction getActDelete() {
-		return new AbstractAction() {
-			{
-				putValue(Action.NAME, "Удалить");
-				putValue(Action.SHORT_DESCRIPTION, "Удалить фрагмент");
-				putValue(Action.SMALL_ICON, getImageIcon("delete.gif"));
-				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
 				setEnabled(false);
 			}
 
@@ -362,13 +380,14 @@ public class Act {
 	 * @return Action "Выделить всё"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActSelectAll(JEditorPane pane) {
+	private AbstractAction getActSelectAll(JEditorPane pane) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Выделить всё");
 				putValue(Action.SHORT_DESCRIPTION, "Выделить всё");
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
-				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, 2));
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
@@ -384,7 +403,7 @@ public class Act {
 	 * @return Action "Поиск..."
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActFind(Finder finder) {
+	private AbstractAction getActFind(Finder finder) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Поиск...");
@@ -405,7 +424,7 @@ public class Act {
 	 * @return Action "Продолжить поиск вперёд"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActFindForward(Finder finder) {
+	private AbstractAction getActFindForward(Finder finder) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Продолжить поиск вперёд");
@@ -426,7 +445,7 @@ public class Act {
 	 * @return Action "Продолжить поиск назад"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActFindBack(Finder finder) {
+	private AbstractAction getActFindBack(Finder finder) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Продолжить поиск назад");
@@ -443,6 +462,52 @@ public class Act {
 	}
 
 	/**
+	 * "Отображать инструментальную линейку"
+	 * 
+	 * @param viewer приложение.
+	 *
+	 * @return Action "Отображать инструментальную линейку"
+	 */
+	@SuppressWarnings("serial")
+	private AbstractAction getActToolbarOn(BankViewer viewer) {
+		return new AbstractAction() {
+			{
+				putValue(Action.NAME, "Отображать инструментальную линейку");
+				putValue(Action.SHORT_DESCRIPTION, "Отображать инструментальную линейку");
+				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
+			}
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				JCheckBoxMenuItem i = (JCheckBoxMenuItem) actionEvent.getSource();
+				viewer.setTooolbarON(i.isSelected());
+			}
+		};
+	}
+
+	/**
+	 * "Отображать строку состояния"
+	 * 
+	 * @param viewer приложение.
+	 *
+	 * @return Action "Отображать строку состояния"
+	 */
+	@SuppressWarnings("serial")
+	private AbstractAction getActStatusbarOn(BankViewer viewer) {
+		return new AbstractAction() {
+			{
+				putValue(Action.NAME, "Отображать строку состояния");
+				putValue(Action.SHORT_DESCRIPTION, "Отображать строку состояния");
+				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
+			}
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				JCheckBoxMenuItem i = (JCheckBoxMenuItem) actionEvent.getSource();
+				viewer.setStatusbarON(i.isSelected());
+			}
+		};
+	}
+
+	/**
 	 * "О программе"
 	 * 
 	 * @param viewer приложение.
@@ -450,10 +515,10 @@ public class Act {
 	 * @return Action "О программе"
 	 */
 	@SuppressWarnings("serial")
-	public AbstractAction getActAbout(BankViewer viewer) {
+	private AbstractAction getActAbout(BankViewer viewer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "О программе...");
+				putValue(Action.NAME, "О программе");
 				putValue(Action.SHORT_DESCRIPTION, "О программе");
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 			}
@@ -461,7 +526,7 @@ public class Act {
 			public void actionPerformed(ActionEvent actionEvent) {
 				String str = "\n" + BankViewer.APP_NAME + "\n" + BankViewer.APP_VERSION + "\n"
 						+ BankViewer.APP_COPYRIGHT + "\n\n" + BankViewer.APP_OTHER + "\n\n";
-				viewer.inf(str, "О программе...");
+				viewer.inf(str, "О программе");
 			}
 		};
 	}
@@ -469,18 +534,22 @@ public class Act {
 	private JMenuBar menu;
 	private JMenu fileMenu;
 
+	private JPopupMenu popupMenu;
+
 	private AbstractAction open;
 	private AbstractAction exit;
 
 	private AbstractAction cut;
 	private AbstractAction copy;
-	private AbstractAction past;
-	private AbstractAction delete;
+	private AbstractAction paste;
 	private AbstractAction selectAll;
 
 	private AbstractAction find;
 	private AbstractAction findForward;
 	private AbstractAction findBack;
+
+	private AbstractAction toolbarOn;
+	private AbstractAction statusbarOn;
 
 	private AbstractAction about;
 

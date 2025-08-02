@@ -116,6 +116,13 @@ public abstract class FinderFrame extends JDialog {
 	}
 
 	/**
+	 * Фокус в поле What.
+	 */
+	public void whatFocus() {
+		fldWhat.requestFocus();
+	}
+
+	/**
 	 * Собственно поиск. Будет определен в Action.
 	 */
 	public abstract void find();
