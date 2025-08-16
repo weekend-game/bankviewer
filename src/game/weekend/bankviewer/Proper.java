@@ -13,21 +13,22 @@ import java.util.Properties;
 import javax.swing.JFrame;
 
 /**
- * Локально сохраняемые свойства приложения.
+ * Locally stored application properties.
  */
 public class Proper {
 
 	/**
-	 * Создание объектов этого класса запрещено. Класс содержит только статические
-	 * методы.
+	 * Creating objects of this class is prohibited. The class contains only static
+	 * methods.
 	 */
 	private Proper() {
 	}
 
 	/**
-	 * Прочитать ранее сохранённые свойства приложения.
+	 * Read previously saved application properties.
 	 * 
-	 * @param name имя файла свойств приложения без указания типа.
+	 * @param name name of the application properties file without specifying the
+	 *             type.
 	 */
 	public static void read(String name) {
 		fileName = name.toLowerCase() + ".properties";
@@ -41,7 +42,7 @@ public class Proper {
 	}
 
 	/**
-	 * Сохранить свойства приложения.
+	 * Save application properties.
 	 */
 	public static void save() {
 		OutputStream out;
@@ -55,28 +56,28 @@ public class Proper {
 	}
 
 	/**
-	 * Сохранить свойство name с целым значением value.
+	 * Save the property with an integer value.
 	 * 
-	 * @param name  имя свойства.
-	 * @param value целое значение.
+	 * @param name  property name.
+	 * @param value integer value.
 	 */
 	public static void setProperty(String name, int value) {
 		properties.setProperty(name, "" + value);
 	}
 
 	/**
-	 * Получить целое свойство name.
+	 * Get the integer name property.
 	 * 
-	 * @param name имя свойства.
-	 * @param def  значение свойства по умолчанию.
-	 * @return целочисленное значение свойства.
+	 * @param name property name.
+	 * @param def  default property value.
+	 * @return integer value of the property.
 	 */
 	public static int getProperty(String name, int def) {
 		return Integer.parseInt(properties.getProperty(name, "" + def));
 	}
 
 	/**
-	 * Сохранить свойство name со строковым значением value.
+	 * Save the property with the string value.
 	 * 
 	 * @param name  имя свойства.
 	 * @param value строковое значение.
@@ -88,18 +89,18 @@ public class Proper {
 	/**
 	 * Получить строковое свойство name.
 	 * 
-	 * @param name имя свойства.
-	 * @param def  значение свойства по умолчанию.
-	 * @return строковое значение свойства.
+	 * @param name property name.
+	 * @param def  default property value.
+	 * @return string value of the property.
 	 */
 	public static String getProperty(String name, String def) {
 		return properties.getProperty(name, def);
 	}
 
 	/**
-	 * Сохранить расположение компонента.
+	 * Save component location.
 	 * 
-	 * @param c окно.
+	 * @param c component.
 	 */
 	public static void saveBounds(Component c) {
 		String name = c.getClass().getName();
@@ -112,14 +113,15 @@ public class Proper {
 	}
 
 	/**
-	 * Расположить компонент в ранее сохранённой позиции. Если компонент ранее не
-	 * сохранялся, то он будет расположен по координатам указанным в параметрах.
+	 * Place the component in a previously saved position. If the component has not
+	 * been saved before, it will be located at the coordinates specified in the
+	 * parameters.
 	 * 
-	 * @param c  окно.
-	 * @param dx х по умолчанию.
-	 * @param dy y по умолчанию.
-	 * @param dw ширина окна по умолчанию.
-	 * @param dh высота окна по умолчанию.
+	 * @param c  component.
+	 * @param dx х by default.
+	 * @param dy y by default.
+	 * @param dw default component width.
+	 * @param dh default component height.
 	 */
 	public static void setBounds(Component c, int dx, int dy, int dw, int dh) {
 		String name = c.getClass().getName();
@@ -132,9 +134,9 @@ public class Proper {
 	}
 
 	/**
-	 * Сохранить расположение главного окна приложения.
+	 * Save the location of the main application frame.
 	 * 
-	 * @param frame окно.
+	 * @param frame frame.
 	 */
 	public static void saveBounds(JFrame frame) {
 		saveBounds((Component) frame);
@@ -142,9 +144,9 @@ public class Proper {
 	}
 
 	/**
-	 * Расположить главное окно приложения в ранее сохранённой или умолчательной
+	 * Place the main application window in a previously saved or default location.
 	 * 
-	 * @param frame фрейм глаыного окна приложения.
+	 * @param frame frame.
 	 */
 	public static void setBounds(JFrame frame) {
 		final int INSET = 40;

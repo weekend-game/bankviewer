@@ -8,15 +8,15 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 /**
- * Поиск текста оображенного в JEditorPane.
+ * Search for text displayed in a JEditorPane.
  */
 public class Finder {
 
 	/**
-	 * Создать объект для поиска текста оображенного в JEditorPane.
+	 * Create an object to search for text displayed in a JEditorPane.
 	 *
-	 * @param pane  собственно JEditorPane.
-	 * @param frame фрейм в котором расположена JEditorPane.
+	 * @param pane  JEditorPane itself.
+	 * @param frame frame containing the JEditorPane.
 	 */
 	public Finder(JEditorPane pane, JFrame frame) {
 		this.pane = pane;
@@ -28,15 +28,15 @@ public class Finder {
 	}
 
 	/**
-	 * Сбросить позицию начала поиска в исходное состояние
+	 * Reset the search start position to its original state.
 	 */
 	public void resetPosition() {
 		position = -1;
 	}
 
 	/**
-	 * Отображение диалогового окна для указания шаблона поиска и затем поиск
-	 * указанного шаблона.
+	 * Displays a dialog box for specifying a search pattern, and then searches for
+	 * the specified pattern.
 	 */
 	@SuppressWarnings("serial")
 	public void find() {
@@ -79,7 +79,7 @@ public class Finder {
 	}
 
 	/**
-	 * Искать текущую подстроку вперёд
+	 * Search current line forward.
 	 */
 	public void findForward() {
 		try {
@@ -95,7 +95,7 @@ public class Finder {
 	}
 
 	/**
-	 * Искать текущую подстроку назад
+	 * Search backwards for the current line.
 	 */
 	public void findBack() {
 		try {
@@ -111,9 +111,9 @@ public class Finder {
 	}
 
 	/**
-	 * Получить подстроку для поиска.
+	 * Get the string to search for.
 	 * 
-	 * @return подстрока для поиска.
+	 * @return search string.
 	 */
 	private String getPattern() {
 		if (!caseSensitive) {
@@ -124,10 +124,10 @@ public class Finder {
 	}
 
 	/**
-	 * Получить текст отображенный в JEditorPane.
+	 * Get the text displayed in the JEditorPane.
 	 * 
-	 * @return текст отображенный в JEditorPane.
-	 * @throws BadLocationException унаследованное исключение.
+	 * @return text displayed in JEditorPane.
+	 * @throws BadLocationException inherited exception.
 	 */
 	private String getContent() throws BadLocationException {
 		Document d = pane.getDocument();
@@ -139,17 +139,17 @@ public class Finder {
 	}
 
 	/**
-	 * Выделить найденную подстроку в JEditorPane.
+	 * Select the found string in JEditorPane.
 	 * 
-	 * @param i позиция в которой начинается найденная подстрока.
-	 * @throws BadLocationException унаследованное исключение.
+	 * @param i the position at which the found string begins.
+	 * @throws BadLocationException inherited exception.
 	 */
 	private void showResult(int i) throws BadLocationException {
 		if (i >= 0) {
 			position = i;
 			BankViewer.status.showMessage("");
 		} else
-			BankViewer.status.showMessage("Не удаётся найти \"" + pattern + "\"");
+			BankViewer.status.showMessage(Loc.get("unable_to_find") + " \"" + pattern + "\"");
 
 		if (position >= 0) {
 			pane.scrollRectToVisible((Rectangle) pane.modelToView2D(position));

@@ -9,12 +9,12 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 
 /**
- * Строка состояния приложения.
+ * Application status bar.
  */
 public class StatusBar {
 
 	/**
-	 * Создать строку состояния приложения.
+	 * Create an application status bar.
 	 */
 	public StatusBar() {
 		panel = new JPanel();
@@ -34,37 +34,37 @@ public class StatusBar {
 	}
 
 	/**
-	 * Получить панель, на основе которой реализована строка состояния.
+	 * Get the panel on which the status bar is based.
 	 * 
-	 * @return панель строки состояния.
+	 * @return status bar panel.
 	 */
 	public JPanel getPanel() {
 		return panel;
 	}
 
 	/**
-	 * Вывести текст в первой секции строки состояния.
+	 * Display text in the first section of the status bar.
 	 * 
-	 * @param txt текст.
+	 * @param text text.
 	 */
-	public void showText1(String txt) {
-		text1.setText(txt);
+	public void showText1(String text) {
+		text1.setText(text);
 	}
 
 	/**
-	 * Вывести текст во второй секции строки состояния.
+	 * Display text in the second section of the status bar.
 	 * 
-	 * @param txt текст.
+	 * @param text text.
 	 */
-	public void showText2(String txt) {
-		text2.setText(txt);
+	public void showText2(String text) {
+		text2.setText(text);
 	}
 
 	/**
-	 * Вывести сообщение в строке состояния и отображать его в течении пяти (DELAY)
-	 * секунд.
+	 * Display a message in the status bar and keep it displayed for five (DELAY)
+	 * seconds.
 	 * 
-	 * @param mes текст сообщения.
+	 * @param mes message text.
 	 */
 	public void showMessage(String mes) {
 		if (tmr != null && tmr.isRunning()) {
@@ -79,7 +79,7 @@ public class StatusBar {
 		tmr.start();
 	}
 
-	private static final int DELAY = 5000; // Время отображения сообщения
+	private static final int DELAY = 5000; // Message display time
 	private JPanel panel;
 	private JTextField text1;
 	private JTextField text2;

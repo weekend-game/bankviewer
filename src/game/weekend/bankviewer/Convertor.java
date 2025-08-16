@@ -2,32 +2,33 @@ package game.weekend.bankviewer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
- * Преобразование из формата банковской выписки в HTML.
- *
+ * Convert from bank statement format to HTML.
  */
 public class Convertor {
 
 	public static final String LS = System.lineSeparator();
 
 	/**
-	 * Создание объектов этого класса запрещено. Класс содержит только статические
-	 * методы.
+	 * Creating objects of this class is prohibited. The class contains only static
+	 * methods.
 	 */
 	private Convertor() {
 	}
 
 	/**
-	 * Преобразовать из формата банковской выписки в HTML.
+	 * Convert from bank statement format to HTML.
 	 * 
-	 * @param src имя исходного файла выписки.
-	 * @param dst имя HTML-файла выписки.
+	 * @param src name of the original file.
+	 * @param dst HTML file name.
 	 */
 	public static void convert(String src, File dstFile) {
 		ArrayList<Substance> al = loadSource(src);
@@ -37,30 +38,30 @@ public class Convertor {
 		createHTML(dstFile, al, title);
 
 		BankViewer.status.showText1("Строк: " + lineCounter);
-		BankViewer.status.showText2("Колонок: " + (title.size() - 1)); // Колонка "No" (номер строки) не считается
+		BankViewer.status.showText2("Колонок: " + (title.size() - 1)); // Column "No" (row number) is not counted
 	}
 
 	/**
-	 * Загрузить исходный текст в список ArrayList&lt;Substance&gt;.
+	 * Load source text into ArrayList&lt;Substance&gt;.
 	 * 
-	 * Исходный текст это пары ключ/значение. Такие пары между строкой с ключём
-	 * "СекцияДокумент" и ключем "КонецДокумента" образуют документ, который можно
-	 * предстваить как строку таблицы отображаемой на экране. Назову такую
-	 * последовательность пар документом. Каждый документ может содержать поля
-	 * отсутствующие в других документах и наоборот. Но, в основном поля в
-	 * документах одинаковы.
+	 * The source text is a key/value pair. Such pairs between a line with the key
+	 * "СекцияДокумент" and the key "КонецДокумента" form a document, which can be
+	 * represented as a line of a table displayed on the screen. I will call such a
+	 * sequence of pairs a document. Each document may contain fields that are
+	 * absent in other documents and vice versa. But, in general, the fields in the
+	 * documents are the same.
 	 * 
-	 * Substance это класс содержащий логическое поле isDocument и спискок полей в
-	 * виде пар ключ/значение. Если это документ, список полей содержит много
-	 * записей, если нет, то только одну. Ту самую строку которая оказалась НЕ между
-	 * "СекцияДокумент" и "КонецДокумента".
+	 * Substance is a class containing a logical field isDocument and a list of
+	 * fields in the form of key/value pairs. If it is a document, then the list of
+	 * fields contains many records, if not, then only one. The very line that was
+	 * NOT between "СекцияДокумент" and "КонецДокумента".
 	 * 
-	 * Из объектов класса Substance и составляется список
+	 * The list is made up of objects of the Substance class.
 	 * ArrayList&lt;Substance&gt;.
 	 * 
-	 * @param src имя исходного файла выписки.
+	 * @param src name of the original extract file.
 	 * 
-	 * @return разобранная выписка.
+	 * @return disassembled bank statement.
 	 */
 	private static ArrayList<Substance> loadSource(String src) {
 		String s, s1, s2;
@@ -71,55 +72,57 @@ public class Convertor {
 		int nn = 0;
 
 		try {
-			// Открываю файл
-			BufferedReader inp = new BufferedReader(new FileReader(src));
+			// I open the file
+			// BufferedReader inp = new BufferedReader(new FileReader(src));
+			BufferedReader inp = new BufferedReader(
+					new InputStreamReader(new FileInputStream(src), Charset.forName("UTF-8")));
 
-			// и последовательно читаю строки
+			// and I read the lines in sequence
 			while ((s = inp.readLine()) != null) {
 				if (s.trim().length() == 0)
 					continue;
 
-				// Т.к. в каждой строке пара ключ=значение, ищу символ '='
+				// Since each line has a key=value pair, I'm looking for the '=' symbol.
 				pos = s.indexOf('=');
 				if (pos > 0) {
-					// Если найден, то s1 - ключ, а s2 - значение
+					// If found, then s1 is the key and s2 is the value
 					s1 = s.substring(0, pos);
 					s2 = s.substring(pos + 1);
 				} else {
-					// Иначе, s1 вся строка, а s2 - пусто
+					// Otherwise, s1 is the entire string and s2 is empty.
 					s1 = s.trim();
 					s2 = "";
 				}
 
 				if (s1.equalsIgnoreCase("СекцияДокумент")) {
-					// Создаю объект нового документа
+					// I create a new document object
 					sub = new Substance(Substance.A_DOC);
-					// Первым идет его номер
+					// its number comes first
 					sub.addPair("No", "" + ++nn);
-					// Затем, эта надпись СекцияДокумент
+					// Then this inscription СекцияДокумент
 					sub.addPair(s1, s2);
-					// Добавляю новый документ в результирующий список
+					// Adding a new document to the resulting list
 					vid.add(sub);
 
-					// Признак "Я в документе"
+					// "I am in the document" flag
 					inDoc = true;
 				} else {
 					if (inDoc) {
-						// Если "Я в документе" и встречаю "КонецДокумента",
+						// If "I am in a document" and I encounter "КонецДокумента",
 						if (s1.equalsIgnoreCase("КонецДокумента")) {
-							// то сбрасываю признак.
+							// then I reset the sign.
 							inDoc = false;
 						} else {
-							// Иначе, добавляю в текущий документ очередную пару ключ/значение
+							// Otherwise, I add another key/value pair to the current document
 							sub.addPair(s1, s2);
 						}
 					} else {
-						// Если не в документе,
-						// то создаю объект с признаком "недокумент"
+						// If not in the document, then I create an object with the "non-document"
+						// attribute
 						sub = new Substance(Substance.NOT_A_DOC);
-						// добавляю в него пару ключ/значение
+						// I add a key/value pair to it
 						sub.addPair(s1, s2);
-						// и добавляю это в результирующий список.
+						// and add it to the resulting list.
 						vid.add(sub);
 					}
 				}
@@ -131,24 +134,24 @@ public class Convertor {
 	}
 
 	/**
-	 * Сформировать заголовок таблицы отображаемой на экране на основании документов
-	 * выписки. Заголовок таблицы это ArrayList&lt;String&gt; содержащий ключи всех
-	 * полей которые встречаются в документах в исходном файле. Но, т.к. исходный
-	 * файл уже разобран и помещен в список, работаю именно с этим списком.
+	 * Generate a table header that is displayed on the screen based on the
+	 * retrieved documents. The table header is an ArrayList&lt;String&gt;
+	 * containing the keys of all the fields found in the source file documents. But
+	 * since the source file has already been parsed and put into a list, I work
+	 * with that list.
 	 * 
-	 * @param vid разобранная выписка.
+	 * @param vid disassembled bank statement.
 	 * 
-	 * @return заголовок на основании документов выписки.
+	 * @return heading based on bank statement documents.
 	 */
 	private static ArrayList<String> createTitle(ArrayList<Substance> vid) {
-		// Возвращаемое значение. Заголовок. Будущий список всех полей которые
-		// встречаются в документах.
+		// Return value. Title. List of all fields that appear in documents.
 		ArrayList<String> title = new ArrayList<String>();
 
-		// Документ содержащий самое большое количество полей становится основой для
-		// формирования списка полей (загловка).
+		// The document containing the largest number of fields becomes the basis for
+		// forming the list of fields (title).
 
-		// Ищу такой
+		// I'm looking for one
 		int curr = 0;
 		Substance etal = null;
 		for (Substance sub : vid) {
@@ -158,14 +161,14 @@ public class Convertor {
 			}
 		}
 
-		// Копирую его ключи в заголовок
+		// I copy his keys into the title
 		if (etal != null) {
 			for (Pair p : etal.pairs) {
 				title.add(p.key);
 			}
 		}
 
-		// Расширяю заголовок, добавля в него ключи из прочих документов
+		// I expand the title by adding keys from other documents
 		for (Substance sub : vid) {
 			if (sub.isDoc) {
 				for (Pair p : sub.pairs) {
@@ -179,18 +182,17 @@ public class Convertor {
 	}
 
 	/**
-	 * Создать HTML-файл выписки.
+	 * Create a bank statement HTML file.
 	 * 
-	 * @param dst   имя HTML-файла выписки.
-	 * @param vid   разобранная выписка.
-	 * @param title заголовок на основании документов выписки.
+	 * @param dst   name of the HTML file
+	 * @param vid   disassembled bank statement.
+	 * @param title title based on bank statement documents.
 	 */
 	private static void createHTML(File dstFile, ArrayList<Substance> vid, ArrayList<String> title) {
 
 		try {
 			out = new PrintWriter(new FileWriter(dstFile));
 
-			// Заголовок файла
 			write("<html>");
 			write(" <head>");
 			write("   <title>");
@@ -201,15 +203,15 @@ public class Convertor {
 			boolean inTable = false;
 			for (Substance sb : vid) {
 				if (sb.isDoc) {
-					// Печатем заголовок
+					// Print title
 					if (!inTable) {
 						inTable = true;
 						write("<table border='1'>");
 						write("<tr>");
 						for (String t : title) {
-							// Некоторые эмпирические правила для определения ширины колонок. Так удобнее
-							// становится. Впрочем, можно было бы и определить реально необходимую ширину
-							// колонки...
+							// Some empirical rules for determining the column width. This makes it more
+							// convenient. However, it would be possible to determine the actually necessary
+							// column width...
 							if (t.equalsIgnoreCase("Плательщик1") || t.equalsIgnoreCase("Получатель")
 									|| t.equalsIgnoreCase("Получатель1") || t.equalsIgnoreCase("НазначениеПлатежа")
 									|| t.equalsIgnoreCase("НазначениеПлатежа1")) {
@@ -224,14 +226,14 @@ public class Convertor {
 						write("</tr>");
 					}
 
-					// Формирование строки документа
+					// Forming a document line
 					String[] d = new String[title.size()];
 					for (Pair p : sb.pairs) {
 						int ps = hasName(title, p.key);
 						d[ps] = p.value;
 					}
 
-					// Вывод строки документа
+					// Output of a document line
 					write("<tr>");
 					for (int i = 0; i < d.length; ++i) {
 						write("<td>" + spacing(d[i]) + "</td>");
@@ -245,7 +247,7 @@ public class Convertor {
 						write("</table>");
 						inTable = false;
 					}
-					// Вывод прочего
+					// Output of other things
 					for (Pair p : sb.pairs) {
 						String ss = "<b>" + spacing(p.key) + "</b> = " + spacing(p.value) + "<br>";
 						write(ss);
@@ -267,10 +269,10 @@ public class Convertor {
 	}
 
 	/**
-	 * Заменить пустую строку на &nbsp;.
+	 * Replace the empty string with &nbsp;.
 	 * 
-	 * @param s строка
-	 * @return "&nbsp;" если строка была пустой и она же если нет.
+	 * @param s string
+	 * @return "&nbsp;" if the line was empty and the same if it wasn't.
 	 */
 	private static String spacing(String s) {
 		if (s == null) {
@@ -283,29 +285,29 @@ public class Convertor {
 	}
 
 	/**
-	 * Вывести в файл (this.out) строку завершив её переводом строки.
+	 * Output a line to the file this.out ending with a line feed.
 	 * 
-	 * @param s выводимая в файл строка.
+	 * @param s string for output.
 	 */
 	private static void write(String s) {
 		Convertor.out.write(s + LS);
 	}
 
 	/**
-	 * Определить позицию ключа в заголовке.
+	 * Determine the position of the key in the title.
 	 * 
-	 * Используется при создании заголовка документа. Заголовок формируется из
-	 * ключей документа содержащего самое большое количество полей. А затем в него
-	 * добавляются поля прочих документов которых возможно не было в документе
-	 * принятом за основу. Для ответа на вопрос, имеется ли такое поле в списке, и
-	 * служит этот метод.
+	 * Used when forming the document header. The header is formed from the keys of
+	 * the document containing the largest number of fields. Then fields of other
+	 * documents that may not have been in the document taken as a basis are added
+	 * to it. This method is used to answer the question about the presence of such
+	 * a field in the list.
 	 * 
-	 * Эффективность такого поиска низкая, но для данной задачи приемлемая.
+	 * The efficiency of such a search is low, but acceptable for this task.
 	 * 
-	 * @param title заголовок на основании документов выписки.
-	 * @param key   ключ.
+	 * @param title title based on bank statement documents.
+	 * @param key   key.
 	 * 
-	 * @return - позиция ключа в заголовке или -1.
+	 * @return - position of the key in the title or -1.
 	 */
 	private static int hasName(ArrayList<String> title, String key) {
 		int i = -1;
@@ -318,16 +320,16 @@ public class Convertor {
 	}
 
 	/**
-	 * Содержит логическое поле isDocument и спискок полей в виде пар ключ/значение.
-	 * Если это документ, список полей содержит много записей, если нет, то только
-	 * одну. Ту самую строку которая оказалась НЕ между "СекцияДокумент" и
+	 * Contains a logical field isDocument and a list of fields as key/value pairs.
+	 * If it is a document, the list of fields contains many entries, if not, then
+	 * only one. That same line that was NOT between "СекцияДокумент" and
 	 * "КонецДокумента".
 	 * 
-	 * Класс простейший, поэтому вместо getters использую public final поля.
+	 * The class is very simple, so instead of getters I use public final fields.
 	 */
 	static class Substance {
 
-		// Использую константы вместо enum. Какая дикость...
+		// Using constants instead of enum. What a wild thing...
 		public static final boolean A_DOC = true;
 		public static final boolean NOT_A_DOC = false;
 

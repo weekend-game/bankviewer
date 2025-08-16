@@ -9,27 +9,26 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 /**
- * Упрощение менеджера расположения GridBagLayout.
+ * Simplifying the GridBagLayout layout manager.
  * <P>
- * Использование GridBagLayout требует написания большого количества строк кода
- * и большого внимания. GBL оставляет только необходимую функциональность и
- * требует ввода небольшого количества кода.
+ * Using GridBagLayout requires a lot of code and attention. GBL leaves only the
+ * necessary functionality and requires a small amount of code.
  * <P>
- * Панель делится на некоторое количество строк и колонок. Затем слева направо
- * последовательно указываются элементы управления, для которых задается способ
- * выравнивания (посредством выбора подходящего метода) и количество занимаемых
- * в строке клеток (посредством указания второго параметра метода). Высота
- * элементов управления всегда подразумевается равной 1. После заполнения
- * текущей строки вызывается метод newLine() и заполняется следующая строка.
+ * The panel is divided into a number of rows and columns. Then, from left to
+ * right, the controls are sequentially specified, for which the alignment
+ * method is specified (by selecting the appropriate method) and the number of
+ * cells occupied in the row (by specifying the second parameter of the method).
+ * The height of the controls is always assumed to be 1. After the current row
+ * is filled, the newLine() method is called and the next row is filled.
  */
 public class GBL {
 
 	/**
-	 * Создать менеджер расположения GBL.
+	 * Create GBL Location Manager.
 	 * 
-	 * @param p      панель, на которой будут располагаться элементы управления.
-	 * @param border true - если элементы следует располагать с некоторым зазором
-	 *               между собой, false - если без зазора.
+	 * @param p      the panel on which the components will be located.
+	 * @param border true - if the components should be placed with some gap between
+	 *               them, false - if there is no gap.
 	 */
 	public GBL(JPanel p, boolean border) {
 		pane = p;
@@ -49,10 +48,10 @@ public class GBL {
 	}
 
 	/**
-	 * Добавить в текущую строку и позицию компонент с выравниванием влево.
+	 * Add a left-aligned component to the current row and position.
 	 * 
-	 * @param c     компонент.
-	 * @param width ширина компонента.
+	 * @param c     component.
+	 * @param width component width.
 	 */
 	public void addFixL(Component c, int width) {
 		gbc.weightx = 0.0;
@@ -68,10 +67,10 @@ public class GBL {
 	}
 
 	/**
-	 * Добавить в текущую строку и позицию компонент с выравниванием вправо.
+	 * Add a right-aligned component to the current row and position.
 	 * 
-	 * @param c     компонент.
-	 * @param width ширина компонента.
+	 * @param c     component.
+	 * @param width component width.
 	 */
 	public void addFixR(Component c, int width) {
 		gbc.weightx = 0.0;
@@ -87,11 +86,10 @@ public class GBL {
 	}
 
 	/**
-	 * Добавить в текущую строку и позицию компонент с растягиванием его по
-	 * горизонтали.
+	 * Add a component to the current row and position, stretching it horizontally.
 	 * 
-	 * @param c     компонент.
-	 * @param width ширина компонента.
+	 * @param c     component.
+	 * @param width component width.
 	 */
 	public void addExtX(Component c, int width) {
 		gbc.weightx = 1.0;
@@ -107,7 +105,7 @@ public class GBL {
 	}
 
 	/**
-	 * Перейти к следующей строке.
+	 * Go to the next line.
 	 */
 	public void newLine() {
 		gbc.gridx = 0;

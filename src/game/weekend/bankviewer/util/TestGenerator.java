@@ -8,20 +8,20 @@ public class TestGenerator {
 	public static final String LS = System.lineSeparator();
 
 	public static void main(String[] args) {
-		System.out.println("Старт...");
+		System.out.println("Start...");
 
 		var tg = new TestGenerator();
-		tg.makeTest("Выписка2.txt", 32, "26.07.2025");
-		tg.makeTest("Выписка3.txt", 64, "27.07.2025");
+		tg.makeTest("BankStatement1.txt", 32, "26.07.2025");
+		tg.makeTest("BankStatement2.txt", 48, "27.07.2025");
+		tg.makeTest("BankStatement3.txt", 64, "09.08.2025");
 
-		System.out.println("Готово!");
+		System.out.println("Done!");
 	}
 
 	public void makeTest(String fileName, int numberOfLines, String docDate) {
 
 		try (FileWriter writer = new FileWriter(fileName)) {
 
-			// Записываю заголовк
 			writer.write(ls("ClientBankExchange"));
 			writer.write(ls("ВерсияФормата=1.00"));
 			writer.write(ls("Кодировка=Windows"));
@@ -32,7 +32,6 @@ public class TestGenerator {
 			writer.write(ls("РасчСчет=00000000000000000000"));
 			writer.write(ls("Что-то ещё?=Да, что-то ещё"));
 
-			// Записываю документы
 			for (int i = 1; i <= numberOfLines; ++i) {
 
 				int counterparty = (int) (Math.random() * 20 + 10);
@@ -70,7 +69,6 @@ public class TestGenerator {
 				writer.write(ls("КонецДокумента"));
 			}
 
-			// Записываю завершение файла
 			writer.write(ls("КонецФайла"));
 
 		} catch (IOException e) {

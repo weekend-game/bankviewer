@@ -4,33 +4,34 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Список имен последних открытых файлов.
+ * List of names of recently opened files.
  * <p>
- * Имена файлов храняться между сеансами работы приложения посредством объекта
- * хранимых свойств приложения (Proper).
+ * The names of the last opened files are stored between application sessions
+ * using the application's stored properties object (Proper).
  * <p>
- * Использование. Объект создаётся при старте приложения. При этом он, используя
- * Proper, читает ранее сохранённый список файлов. Объект класса Act использует
- * метод getList(), для формирования списка последних открытых файлов в меню
- * File. Filer в случае успешного открытия очередного файла, методом put()
- * помещает имя открытого файла в список. Если открыть файл не удалось, то Filer
- * методом remove() удаляет такой файл из списка. При завершении приложения
- * класс BankViewer из своего метода close() вызывает save() и т.о. сохраняет
- * список файлов до следующего запуска приложения.
+ * Usage: The object is created when the application is launched. At the same
+ * time, it reads the previously saved list of files using the Proper method.
+ * The Act class object uses the getList() method to form a list of the most
+ * recently opened files in the File menu. If the next file is successfully
+ * opened, Filer places the name of the open file in the list using the put()
+ * method. If the file cannot be opened, Filer removes such a file from the list
+ * using the remove() method. When the application is terminated, the BankViewer
+ * class calls the save() method from its close() method, thereby saving the
+ * list of files until the next application launch.
  */
 public class LastFiles {
 
 	/**
-	 * Создать объект хранения имен последних открытых файлов.
+	 * Create an object to store the names of the last opened files.
 	 * 
-	 * @param maxSize максимальное количество хранимых имен файлов.
+	 * @param maxSize maximum number of file names to store.
 	 */
 	public LastFiles(int maxSize) {
-		// Максимальное количество хранимых имен файлов
+		// Maximum number of stored file names
 		this.maxSize = maxSize;
 
-		// Указанное количество будет прочитано в список list из хранимых
-		// свойств приложения. Это свойства с именами File1, File2, ...
+		// The specified quantity of file names will be read into the list of saved
+		// application properties. These are properties named File1, File2, ...
 		for (int i = 1; i <= maxSize; ++i) {
 			String s = Proper.getProperty("File" + i, "");
 			if (s.length() > 0) {
@@ -40,26 +41,26 @@ public class LastFiles {
 	}
 
 	/**
-	 * Запомнить имя файла в списке.
+	 * Remember the file name in the list.
 	 * 
-	 * @param value путь и имя открытого файла.
+	 * @param value path and name of the open file.
 	 */
 	public void put(String value) {
-		// Возможно файл уже есть в списке, поэтому его надо удалить
+		// The file may already be in the list and needs to be deleted.
 		int i = list.indexOf(value);
 		if (i >= 0) {
 			list.remove(i);
 		}
-		list.addFirst(value); // И разместить первым в списке
+		list.addFirst(value); // And place first in the list
 
-		// Если размер списка вышел за пределы maxSize, то удаляю последний (забываю)
+		// If the list size is beyond maxSize, then I delete the last one (I forget)
 		if (list.size() > maxSize) {
 			list.remove(maxSize);
 		}
 	}
 
 	/**
-	 * Удалить имя файла из списка.
+	 * Remove file name from list.
 	 */
 	public void remove(String value) {
 		int pos = list.indexOf(value);
@@ -67,19 +68,19 @@ public class LastFiles {
 	}
 
 	/**
-	 * Получить список последних открытых файлов. Метод используется для фрмирования
-	 * списка этих файлов в меню File приложения.
+	 * Get a list of recently opened files. The method is used to generate a list of
+	 * these files in the application's File menu.
 	 * 
-	 * @return список последних открытых файлов.
+	 * @return list of recently opened files.
 	 */
 	public List<String> getList() {
 		return list;
 	}
 
 	/**
-	 * Сохранить список файлов в запоминаемых свойствах приложения. Это будут
-	 * свойства с именами File1, File2, ... Они будут вновь прочитаны при создании
-	 * этого объекта (при запуске приложения).
+	 * Save the list of files in the remembered properties of the application. These
+	 * will be properties named File1, File2, ... They will be read again when this
+	 * object is created (when the application is launched).
 	 */
 	public void save() {
 		int i = 1;

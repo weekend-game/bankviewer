@@ -31,63 +31,63 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 /**
- * Приложение BankViewer.
+ * BankViewer application.
  */
 public class BankViewer {
 
-	/** Название приложения */
+	/** Application name */
 	public static final String APP_NAME = "BankViewer";
 
-	/** Версия */
-	public static final String APP_VERSION = "Версия 01.30 от 02.08.2025";
+	/** Version */
+	public static final String APP_VERSION = Loc.get("version") + " 01.40 " + Loc.get("from") + " 16.08.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
 
-	/** Назначение */
-	public static final String APP_OTHER = "Просмотр банковских выписок";
+	/** Purpose */
+	public static final String APP_OTHER = Loc.get("view_bank_statements");
 
-	/** Путь к пиктограммам */
+	/** Path to images */
 	public static final String IMAGE_PATH = "/game/weekend/bankviewer/images/";
 
-	/** Строка состояния */
+	/** Status bar */
 	public static final StatusBar status = new StatusBar();
 
 	/**
-	 * Создать приложение. Создаётся окно приложения, объекты необходимые для работы
-	 * и элементы управления окна.
+	 * Create an application. The application frame, frame controls, and objects
+	 * required for operation are created.
 	 */
 	public BankViewer() {
-		// Хранитель настроек между сеансами работы приложения
+		// Keeper of settings between application sessions
 		Proper.read(APP_NAME);
 
-		// Frame приложения
+		// Applicatein Frame
 		frame = new JFrame(APP_NAME);
 		makeJFrame();
 
-		// JEditorPane для отображения банковской выписки
+		// JEditorPane for displaying bank statement
 		pane = new JEditorPane();
 		makeJEditorPane();
 
-		// Хранитель имен последних открытых файлов (пяти, например)
+		// Keeper of names of the last opened files (five, for example)
 		lastFiles = new LastFiles(5);
 
-		// Поиск в открытом файле
+		// Search in an open file
 		Finder finder = new Finder(pane, frame);
 
-		// Работа с файлами
+		// Working with files
 		filer = new Filer(this, lastFiles, finder);
 
 		// Look and Feels
 		LaF laf = new LaF();
 
-		// Работа с меню и инструментальной линейкой
+		// Working with menu and toolbar
 		act = new Act(this, filer, finder, laf, lastFiles);
 
-		// Меню
+		// Menu
 		frame.setJMenuBar(act.getMenuBar());
 
-		// Меню по правой клавише мыши
+		// Context menu
 		JPopupMenu popupMenu = act.getPopupMenu();
 		pane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -105,13 +105,13 @@ public class BankViewer {
 			}
 		});
 
-		// Инструментальная линейка
+		// Toolbar
 		toolbarOn = Proper.getProperty("ToolbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
 		toolbar = act.getToolBar();
 		if (toolbarOn)
 			frame.getContentPane().add(toolbar, BorderLayout.NORTH);
 
-		// Строка состояния
+		// Status bar
 		statusbarOn = Proper.getProperty("StatusbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
 		statusbar = BankViewer.status.getPanel();
 		if (statusbarOn)
@@ -122,52 +122,43 @@ public class BankViewer {
 	}
 
 	/**
-	 * Настройка основного окна приложения.
+	 * Customizing the main application frame.
 	 */
 	private void makeJFrame() {
-		// Ничего не делать при попытке закрыть окно, но
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		// перехватить это событие
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				// и вызвать этот метод. В нем будут сохраняться настройки
 				close();
 			}
 		});
 
-		// Для ContentPane ставлю менеджер расположения BorderLayout
-		// (в середине будет JEditorPane для отображения выписки, сверху toolbar)
 		Container cp = frame.getContentPane();
 		cp.setLayout(new BorderLayout());
 
-		// Восстанавливаю расположение и размеры фрейма, которые он имел в прошлом
-		// сеансе работы
 		Proper.setBounds(frame);
 	}
 
 	/**
-	 * Настройка панели отображения выписки.
+	 * Customizing the statement display panel.
 	 */
 	private void makeJEditorPane() {
-		// Панель нередактируемая
+		// The panel is not editable
 		pane.setEditable(false);
 
-		// Помещаю её в JScrollPane
 		JScrollPane spane = new JScrollPane();
 		spane.getViewport().add(pane);
 
-		// и размещаю JScrollPane в центр ContentPane Frame-а
 		frame.getContentPane().add(spane, BorderLayout.CENTER);
 
-		// Перехватываю выделение/сброс выделения текста отображенной выписки
+		// Intercepting text selection/reset
 		pane.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent ce) {
-				// Если имеется выделенный текст, то разрешить Copy иначе заблокировать.
+				// If text is selected, allow Copy, otherwise block.
 				act.setEnabledCopy(pane.getSelectionStart() != pane.getSelectionEnd());
 			}
 		});
 
-		// Перехватываю событие Drag and Drop. На самом деле Drop.
+		// Intercepting the Drag and Drop event. Actually Drop.
 		new DropTarget(pane, new DropTargetListener() {
 
 			public void dragEnter(DropTargetDragEvent e) {
@@ -195,9 +186,9 @@ public class BankViewer {
 	}
 
 	/**
-	 * Запустить приложение.
+	 * Launch the application.
 	 *
-	 * @param args не используется.
+	 * @param args not used.
 	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -209,9 +200,9 @@ public class BankViewer {
 	}
 
 	/**
-	 * Отображать инструментальную линейку.
+	 * Display the toolbar.
 	 * 
-	 * @param toolbarON true - отображать, false - не отображать
+	 * @param toolbarON true/false
 	 */
 	public void setTooolbarON(boolean toolbarON) {
 		this.toolbarOn = toolbarON;
@@ -225,9 +216,9 @@ public class BankViewer {
 	}
 
 	/**
-	 * Отображать строку состояния.
+	 * Display the status bar.
 	 * 
-	 * @param statusbarON true - отображать, false - не отображать
+	 * @param statusbarON true/false
 	 */
 	public void setStatusbarON(boolean statusbarOn) {
 		this.statusbarOn = statusbarOn;
@@ -241,9 +232,9 @@ public class BankViewer {
 	}
 
 	/**
-	 * Закрыть приложение.
+	 * Close the application.
 	 * 
-	 * Сохраняет всё, что нужно сохранить для восстановления при следующем запуске
+	 * Saves everything that needs to be saved for restoration on next startup
 	 */
 	public void close() {
 		Proper.saveBounds(frame);
@@ -253,9 +244,9 @@ public class BankViewer {
 	}
 
 	/**
-	 * Отобразить файл в JEditorPane главного окна.
+	 * Display the file in the JEditorPane of the main frame.
 	 * 
-	 * @param file отображаемый файл
+	 * @param file file to display
 	 */
 	public void showFile(File file) {
 		String s = "file:" + file.getPath();
@@ -267,23 +258,23 @@ public class BankViewer {
 	}
 
 	/**
-	 * Переотобразить меню "Файл".
+	 * Redisplay the File menu.
 	 */
 	public void refreshMenuFile() {
 		act.refreshMenuFile();
 	}
 
 	/**
-	 * Получить основное окно приложения.
+	 * Get the main application frame.
 	 * 
-	 * @return основное окно приложения.
+	 * @return the main application frame.
 	 */
 	public JFrame getFrame() {
 		return frame;
 	}
 
 	/**
-	 * Получить JEditorPane.
+	 * Get JEditorPane.
 	 * 
 	 * @return JEditorPane.
 	 */
@@ -292,16 +283,16 @@ public class BankViewer {
 	}
 
 	/**
-	 * Выдать сообщение об ошибке.
+	 * Issue an error message.
 	 * 
-	 * @param message текст сообщения.
+	 * @param message text of message.
 	 */
 	public void err(String message) {
 		JOptionPane.showMessageDialog(frame, message, APP_NAME, JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
-	 * Выдать информационное сообщение.
+	 * Issue an informational message.
 	 * 
 	 * @param message текст сообщения.
 	 */
@@ -310,10 +301,10 @@ public class BankViewer {
 	}
 
 	/**
-	 * Выдать информационное сообщение.
+	 * Issue an informational message.
 	 * 
-	 * @param message текст сообщения.
-	 * @param title   заголовок окна.
+	 * @param message message text.
+	 * @param title   title of frame.
 	 */
 	public void inf(String message, String title) {
 		JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);

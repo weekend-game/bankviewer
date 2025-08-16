@@ -7,20 +7,20 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 /**
- * Работа с файлами.
+ * Working with files.
  */
 public class Filer {
 
-	/** Расширение файлов */
+	/** File extension */
 	public static final String EXTENSION = "txt";
 
-	/** Название файлов */
-	public static final String DESCRIPTION = "*.txt - Текстовый файл банковской выгрузки";
+	/** Name */
+	public static final String DESCRIPTION = "*.txt - " + Loc.get("bank_statement_text_file");
 
 	/**
-	 * Создать объект работы с файлами.
+	 * Create a file handling object.
 	 * 
-	 * @param viewer основной объект приложения.
+	 * @param viewer the main object of the application.
 	 */
 	public Filer(BankViewer viewer, LastFiles lastFiles, Finder finder) {
 		this.viewer = viewer;
@@ -29,47 +29,48 @@ public class Filer {
 	}
 
 	/**
-	 * Открыть указнный файл и отобразить его.
+	 * Open the specified file and display it.
 	 * 
-	 * @param file открываемый файл
+	 * @param file file to open
 	 */
 	public void open(File file) {
 		if (file != null) {
 			if (file.exists()) {
 				this.file = file;
 
-				// Отображаю имя открытого файла в заголовке приложения
+				// Displaying the name of the open file in the application title
 				viewer.getFrame().setTitle(BankViewer.APP_NAME + " - " + file.getPath());
 
-				// Запоминаю его в списке последних открытых файлов
+				// I remember it in the list of recently opened files
 				lastFiles.put(file.getPath());
 
 				try {
-					// Исходный файл будет переработан и записан вот в такой html-файл
+					// The original file will be processed and written into an html file like this
 					String dst = "temp_bankviewer_" + no++;
 					File tempFile = File.createTempFile(dst, ".html");
 
 					Convertor.convert(file.getPath(), tempFile);
 
-					// Отображаю html-файл
+					// Displaying an html file
 					viewer.showFile(tempFile);
 
-					// Удаляю, теперь уже не нужный html-файл
+					// Deleting the now unnecessary html file.
 					tempFile.deleteOnExit();
 
-					// Если открыто окно поиска, то поиск вести с начала нового файла
+					// If the search window is open, the search will start from the beginning of the
+					// new file
 					finder.resetPosition();
 
 				} catch (IOException e) {
-					viewer.err("Не удалось создать временный файл для отображения таблицы.\n" + e);
+					viewer.err(Loc.get("failed_to_create_temporary_file_to_display_table") + ".\n" + e);
 				}
 
 			} else {
-				// Если файл не открылся, то удаляю его из списка последних открытых файлов
+				// If the file does not open, I delete it from the list of recently opened files
 				lastFiles.remove(file.getPath());
 
-				// Выдаю сообщение об этом неприятном событии
-				viewer.err("Файл " + file.getPath() + " не найден.");
+				// I am issuing a message about this unpleasant event.
+				viewer.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
 			}
 
 			viewer.refreshMenuFile();
@@ -77,10 +78,10 @@ public class Filer {
 	}
 
 	/**
-	 * Получить файл для открытия посредством диалога открытия файла.
+	 * Get a file to open via the file open dialog box.
 	 * 
-	 * @return файл указанный пользователем или null, если пользователь отказался от
-	 *         открытия файла.
+	 * @return the file specified by the user, or null if the user declined to open
+	 *         the file.
 	 */
 	public File showDialogue() {
 		JFileChooser chooser = getChooser(this.file);
@@ -94,12 +95,12 @@ public class Filer {
 	}
 
 	/**
-	 * Получить стандартное диалоговое окно для открытия файла программы настроенное
-	 * в соответствии с нуждами программы.
+	 * Get a standard dialog box for opening a program file, customized according to
+	 * the needs of the program.
 	 * 
-	 * @param currentFile текущий редактируемый файл.
+	 * @param currentFile the current file being edited.
 	 * 
-	 * @return настроенное диалоговое окно.
+	 * @return customized dialog box.
 	 */
 	private JFileChooser getChooser(File currentFile) {
 		JFileChooser chooser = new JFileChooser();
