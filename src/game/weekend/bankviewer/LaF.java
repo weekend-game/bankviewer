@@ -46,7 +46,7 @@ public class LaF {
 	}
 
 	/**
-	 * Provide a list of components for L&F renewal.
+	 * Provide a list of components for L&amp;F renewal.
 	 * 
 	 * @param components list of components.
 	 */

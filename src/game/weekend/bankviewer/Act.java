@@ -507,7 +507,7 @@ public class Act {
 	/**
 	 * "About..."
 	 * 
-	 * @param viewer приложение.
+	 * @param viewer application.
 	 * 
 	 * @return Action "About..."
 	 */
