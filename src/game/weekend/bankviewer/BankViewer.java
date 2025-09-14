@@ -39,13 +39,16 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Version */
-	public static final String APP_VERSION = Loc.get("version") + " 01.40 " + Loc.get("from") + " 16.08.2025";
+	public static final String APP_VERSION = "01.50";
+
+	/** Date */
+	public static final String APP_DATE = "14.09.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
 
 	/** Purpose */
-	public static final String APP_OTHER = Loc.get("view_bank_statements");
+	public static final String APP_OTHER = "view_bank_statements";
 
 	/** Path to images */
 	public static final String IMAGE_PATH = "/game/weekend/bankviewer/images/";
@@ -60,6 +63,9 @@ public class BankViewer {
 	public BankViewer() {
 		// Keeper of settings between application sessions
 		Proper.read(APP_NAME);
+
+		// Interface language
+		Loc.setLanguage(Proper.getProperty("Language", "en"));
 
 		// Applicatein Frame
 		frame = new JFrame(APP_NAME);

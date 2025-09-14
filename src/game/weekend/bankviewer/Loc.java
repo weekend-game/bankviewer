@@ -5,14 +5,20 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Loc {
-	static {
+
+	private Loc() {
+	}
+
+	public static void setLanguage(String language) {
 		try {
-			bundle = ResourceBundle.getBundle("messages", new Locale("ru"));
+			Loc.language = language;
+			bundle = ResourceBundle.getBundle("messages", new Locale(language));
 		} catch (MissingResourceException ignored) {
 		}
 	}
 
-	private Loc() {
+	public static String getLanguage() {
+		return language;
 	}
 
 	public static String get(String name) {
@@ -30,4 +36,5 @@ public class Loc {
 	}
 
 	private static ResourceBundle bundle;
+	private static String language;
 }

@@ -33,6 +33,7 @@ public class Act {
 	 * Create a menu bar, context menu and toolbar object.
 	 */
 	public Act(BankViewer viewer, Filer filer, Finder finder, LaF laf, LastFiles lastFiles) {
+		this.viewer = viewer;
 		this.filer = filer;
 		this.laf = laf;
 		this.lastFiles = lastFiles;
@@ -107,6 +108,46 @@ public class Act {
 		i = new JCheckBoxMenuItem(statusbarOn);
 		i.setSelected(Proper.getProperty("StatusbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false);
 		viewMenu.add(i);
+
+		// Interface language
+
+		viewMenu.add(new JSeparator());
+
+		ButtonGroup btgLan = new ButtonGroup();
+
+		JMenuItem ru = new JRadioButtonMenuItem();
+		ru.setAction(new AbstractAction() {
+			{
+				putValue(Action.NAME, "Русский");
+			}
+
+			public void actionPerformed(ActionEvent ae) {
+				String prevLanguage = Proper.getProperty("Language", "en");
+				Proper.setProperty("Language", "ru");
+				if (!prevLanguage.equalsIgnoreCase("ru"))
+					Act.this.viewer.inf(Loc.get("restart_the_application"));
+			}
+		});
+		ru.setSelected(Loc.getLanguage().equalsIgnoreCase("ru"));
+		btgLan.add(ru);
+		viewMenu.add(ru);
+
+		JMenuItem en = new JRadioButtonMenuItem();
+		en.setAction(new AbstractAction() {
+			{
+				putValue(Action.NAME, "English");
+			}
+
+			public void actionPerformed(ActionEvent ae) {
+				String prevLanguage = Proper.getProperty("Language", "en");
+				Proper.setProperty("Language", "en");
+				if (!prevLanguage.equalsIgnoreCase("en"))
+					Act.this.viewer.inf(Loc.get("restart_the_application"));
+			}
+		});
+		en.setSelected(Loc.getLanguage().equalsIgnoreCase("en"));
+		btgLan.add(en);
+		viewMenu.add(en);
 
 		JMenu helpMenu = new JMenu(Loc.get("help"));
 		helpMenu.add(about);
@@ -507,7 +548,7 @@ public class Act {
 	/**
 	 * "About..."
 	 * 
-	 * @param viewer application.
+	 * @param app application.
 	 * 
 	 * @return Action "About..."
 	 */
@@ -521,8 +562,9 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				String str = "\n" + BankViewer.APP_NAME + "\n" + BankViewer.APP_VERSION + "\n"
-						+ BankViewer.APP_COPYRIGHT + "\n\n" + BankViewer.APP_OTHER + "\n\n";
+				String str = "\n" + BankViewer.APP_NAME + "\n" + Loc.get("version") + " " + BankViewer.APP_VERSION + " "
+						+ Loc.get("from") + " " + BankViewer.APP_DATE + "\n" + BankViewer.APP_COPYRIGHT + "\n\n"
+						+ Loc.get(BankViewer.APP_OTHER) + "\n\n";
 				viewer.inf(str, Loc.get("about"));
 			}
 		};
@@ -550,6 +592,7 @@ public class Act {
 
 	private AbstractAction about;
 
+	private BankViewer viewer;
 	private Filer filer;
 	private LastFiles lastFiles;
 	private LaF laf;
