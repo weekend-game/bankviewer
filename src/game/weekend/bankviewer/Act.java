@@ -33,7 +33,6 @@ public class Act {
 	 * Create a menu bar, context menu and toolbar object.
 	 */
 	public Act(BankViewer viewer, Filer filer, Finder finder, LaF laf, LastFiles lastFiles) {
-		this.viewer = viewer;
 		this.filer = filer;
 		this.laf = laf;
 		this.lastFiles = lastFiles;
@@ -125,7 +124,7 @@ public class Act {
 				String prevLanguage = Proper.getProperty("Language", "en");
 				Proper.setProperty("Language", "ru");
 				if (!prevLanguage.equalsIgnoreCase("ru"))
-					Act.this.viewer.inf(Loc.get("restart_the_application"));
+					Mes.inf(Loc.get("restart_the_application"));
 			}
 		});
 		ru.setSelected(Loc.getLanguage().equalsIgnoreCase("ru"));
@@ -142,7 +141,7 @@ public class Act {
 				String prevLanguage = Proper.getProperty("Language", "en");
 				Proper.setProperty("Language", "en");
 				if (!prevLanguage.equalsIgnoreCase("en"))
-					Act.this.viewer.inf(Loc.get("restart_the_application"));
+					Mes.inf(Loc.get("restart_the_application"));
 			}
 		});
 		en.setSelected(Loc.getLanguage().equalsIgnoreCase("en"));
@@ -565,7 +564,7 @@ public class Act {
 				String str = "\n" + BankViewer.APP_NAME + "\n" + Loc.get("version") + " " + BankViewer.APP_VERSION + " "
 						+ Loc.get("from") + " " + BankViewer.APP_DATE + "\n" + BankViewer.APP_COPYRIGHT + "\n\n"
 						+ Loc.get(BankViewer.APP_OTHER) + "\n\n";
-				viewer.inf(str, Loc.get("about"));
+				Mes.inf(str, Loc.get("about"));
 			}
 		};
 	}
@@ -592,7 +591,6 @@ public class Act {
 
 	private AbstractAction about;
 
-	private BankViewer viewer;
 	private Filer filer;
 	private LastFiles lastFiles;
 	private LaF laf;

@@ -62,7 +62,7 @@ public class Filer {
 					finder.resetPosition();
 
 				} catch (IOException e) {
-					viewer.err(Loc.get("failed_to_create_temporary_file_to_display_table") + ".\n" + e);
+					Mes.err(Loc.get("failed_to_create_temporary_file_to_display_table") + ".\n" + e);
 				}
 
 			} else {
@@ -70,7 +70,7 @@ public class Filer {
 				lastFiles.remove(file.getPath());
 
 				// I am issuing a message about this unpleasant event.
-				viewer.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
+				Mes.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
 			}
 
 			viewer.refreshMenuFile();

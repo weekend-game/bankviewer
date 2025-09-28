@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -39,10 +38,10 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Version */
-	public static final String APP_VERSION = "01.50";
+	public static final String APP_VERSION = "01.60";
 
 	/** Date */
-	public static final String APP_DATE = "14.09.2025";
+	public static final String APP_DATE = "28.09.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -74,6 +73,9 @@ public class BankViewer {
 		// JEditorPane for displaying bank statement
 		pane = new JEditorPane();
 		makeJEditorPane();
+
+		// Messages
+		Mes.setJFrame(frame);
 
 		// Keeper of names of the last opened files (five, for example)
 		lastFiles = new LastFiles(5);
@@ -286,34 +288,6 @@ public class BankViewer {
 	 */
 	public JEditorPane getPane() {
 		return pane;
-	}
-
-	/**
-	 * Issue an error message.
-	 * 
-	 * @param message text of message.
-	 */
-	public void err(String message) {
-		JOptionPane.showMessageDialog(frame, message, APP_NAME, JOptionPane.ERROR_MESSAGE);
-	}
-
-	/**
-	 * Issue an informational message.
-	 * 
-	 * @param message текст сообщения.
-	 */
-	public void inf(String message) {
-		JOptionPane.showMessageDialog(frame, message, APP_NAME, JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	/**
-	 * Issue an informational message.
-	 * 
-	 * @param message message text.
-	 * @param title   title of frame.
-	 */
-	public void inf(String message, String title) {
-		JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private JFrame frame;

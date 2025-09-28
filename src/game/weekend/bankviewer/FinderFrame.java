@@ -106,7 +106,7 @@ public abstract class FinderFrame extends JDialog {
 		GBL g = new GBL((JPanel) getContentPane(), true);
 
 		g.addFixL(lblWhat, 1);
-		g.addExtX(fldWhat, 5);
+		g.addExtH(fldWhat, 5);
 		g.addFixR(btnFind, 1);
 
 		g.newLine();
