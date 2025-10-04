@@ -38,7 +38,7 @@ All settings, even the search string, are saved between sessions.
 
 ### How the program is written
 
-A more detailed description of the implementation is on the project page: [Bankviewer](https://weekend-game.github.io/bankviewer.htm)
+A more detailed description of the implementation is on the project page: [Bankviewer](https://weekend-game.github.io/bankviewer.htm#ProgDescr)
 
 ### Results
 
