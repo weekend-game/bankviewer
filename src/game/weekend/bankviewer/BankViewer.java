@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,10 +39,10 @@ public class BankViewer {
 	public static final String APP_NAME = "BankViewer";
 
 	/** Version */
-	public static final String APP_VERSION = "01.60";
+	public static final String APP_VERSION = "01.70";
 
 	/** Date */
-	public static final String APP_DATE = "28.09.2025";
+	public static final String APP_DATE = "04.10.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -139,6 +140,8 @@ public class BankViewer {
 				close();
 			}
 		});
+
+		frame.setIconImage(new ImageIcon(getClass().getResource(BankViewer.IMAGE_PATH + "game.gif")).getImage());
 
 		Container cp = frame.getContentPane();
 		cp.setLayout(new BorderLayout());
